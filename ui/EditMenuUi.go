@@ -88,6 +88,8 @@ func EditMenu(ctx *debugui.Context) {
 			ctx.Text("A:")
 			ctx.Slider(&Brush_Color.A, 0, 255, 1)
 
+			grid.Brush_Color = Brush_Color
+
 			ctx.GridCell(func(bounds image.Rectangle) {
 				ctx.DrawOnlyWidget(func(screen *ebiten.Image) {
 					img := ebiten.NewImage(100, 100)
