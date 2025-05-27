@@ -63,42 +63,27 @@ func (grid *Grid) Draw(screen *ebiten.Image, cam camera.Camera) {
 }
 
 func (grid *Grid) Update() {
-	// grid.Tiles = NewGrid(int(grid.Size.X), int(grid.Size.Y), color.RGBA{125, 125, 125, 255}, color.RGBA{255, 255, 255, 255}).Tiles
-
-	// for y := range grid.Tiles {
-	// 	for x, _ := range grid.Tiles[y] {
-	// 		if (int(camera.Cam.Pos.X)+(x*32*int(camera.Cam.Zoom)))/32 == int(utils.Mouse_X)/32 {
-	// 			if (int(camera.Cam.Pos.Y)+(y*32*int(camera.Cam.Zoom)))/32 == int(utils.Mouse_Y)/32 {
-	// 				grid.Tiles[y][x].Color = Brush_Color.TurnToColorRGBA()
-	// 				// fmt.Println(int(int(camera.Cam.Pos.X)+int(960*camera.Cam.Zoom)+(x*32*int(camera.Cam.Zoom))) / 32)
-	// 				// fmt.Println(int(utils.Mouse_X / 32))
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// tile_to_screen_pos := (int(int(camera.Cam.Pos.X)+int(960*camera.Cam.Zoom)+(x*32*int(camera.Cam.Zoom))) / 32)
-	// mouse_to_tile_pos := (int(utils.Mouse_X / 32))
-
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButton0) {
-		world_mouse_x := float64(camera.Cam.Pos.X+960-(utils.Mouse_X*camera.Cam.Zoom)) / 32
-		world_mouse_y := float64(camera.Cam.Pos.Y+540-(utils.Mouse_Y*camera.Cam.Zoom)) / 32
+		world_mouse_x := float64(camera.Cam.Pos.X+960-(utils.Mouse_X)) / 32 * camera.Cam.Zoom
+		world_mouse_y := float64(camera.Cam.Pos.Y+540-(utils.Mouse_Y)) / 32 * camera.Cam.Zoom
 
 		world_mouse_x += float64(len(grid.Tiles[0]) / 2)
 		world_mouse_y += float64(len(grid.Tiles) / 2)
 
 		fmt.Println(world_mouse_x)
-		fmt.Println(world_mouse_y)
 
 		if int(world_mouse_y) < len(grid.Tiles) && world_mouse_y > 0 {
 			if int(world_mouse_x) < len(grid.Tiles[0]) && world_mouse_x > 0 {
 				grid.Tiles[len(grid.Tiles)-int(world_mouse_y)-1][len(grid.Tiles[0])-int(world_mouse_x)-1].Color = Brush_Color.TurnToColorRGBA()
-				grid.GenCache()
+				temp_img := ebiten.NewImage(32, 32)
+				temp_img.Fill(Brush_Color.TurnToColorRGBA())
+
+				op := ebiten.DrawImageOptions{}
+				op.GeoM.Translate(float64(len(grid.Tiles)-int(world_mouse_x)-1)*32, float64(len(grid.Tiles[0])-int(world_mouse_y)-1)*32)
+
+				grid.Grid_Image.DrawImage(temp_img, &op)
 			}
 		}
-
-		fmt.Println(world_mouse_x)
-		fmt.Println(world_mouse_y)
 	}
 }
 

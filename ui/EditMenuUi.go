@@ -78,7 +78,7 @@ func EditMenu(ctx *debugui.Context) {
 		})
 
 		ctx.Header("Color", true, func() {
-			ctx.Text("\n\n\n\n " + "Brush Color" + ":")
+			ctx.Text("Brush Color" + ":")
 			ctx.Text("R:")
 			ctx.Slider(&Brush_Color.R, 0, 255, 1)
 			ctx.Text("G:")

@@ -60,14 +60,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	grid.Temp_Grid.Draw(screen, camera.Cam)
 	ebitenutil.DebugPrintAt(screen, "Hit Tab For Tools", 10, 1080-20)
 	g.debugui.Draw(screen)
-
-	test_img := ebiten.NewImage(10, 10)
-	test_img.Fill(color.RGBA{255, 0, 0, 255})
-
-	camera.DrawWithCamera(screen, camera.Cam, test_img, utils.GeoM{})
-	second_point_geom := utils.GeoM{}
-	second_point_geom.Translate(10*32, 10*32)
-	camera.DrawWithCamera(screen, camera.Cam, test_img, second_point_geom)
 }
 
 func (g *Game) Layout(ow, oh int) (sw, sh int) {
