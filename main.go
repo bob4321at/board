@@ -3,9 +3,11 @@ package main
 import (
 	"board/camera"
 	"board/grid"
+	"board/pieces"
 	"board/ui"
 	"board/utils"
 	"image/color"
+	"strconv"
 
 	"github.com/ebitengine/debugui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -16,7 +18,7 @@ type Game struct {
 	debugui debugui.DebugUI
 }
 
-var Is_Editing bool
+var Is_Editing bool = true
 var Tab_hit bool
 
 func (g *Game) Update() error {
@@ -27,9 +29,14 @@ func (g *Game) Update() error {
 	utils.Scroll_X = sx
 	utils.Scroll_Y = sy
 
-	grid.Temp_Grid.Update()
+	for i := range pieces.Pieces {
+		piece := &pieces.Pieces[i]
+		piece.Update()
+	}
 
 	if Is_Editing {
+		grid.Temp_Grid.Update()
+
 		if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 			ui.EditMenu(ctx)
 			return nil
@@ -61,8 +68,14 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{100, 100, 100, 255})
 	grid.Temp_Grid.Draw(screen, camera.Cam)
+
+	for _, piece := range pieces.Pieces {
+		piece.Draw(screen, camera.Cam)
+	}
+
 	ebitenutil.DebugPrintAt(screen, "Hit Tab For Tools", 10, 1080-20)
 	g.debugui.Draw(screen)
+	ebitenutil.DebugPrint(screen, "FPS: "+strconv.Itoa(int(ebiten.ActualFPS())))
 }
 
 func (g *Game) Layout(ow, oh int) (sw, sh int) {
@@ -71,9 +84,18 @@ func (g *Game) Layout(ow, oh int) (sw, sh int) {
 
 func main() {
 	ebiten.SetWindowSize(1920, 1080)
+	ebiten.SetWindowTitle("board")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
-	if err := ebiten.RunGame(&Game{}); err != nil {
+	img, _, err := ebitenutil.NewImageFromFile("./art/checker_red.png")
+	if err != nil {
+		panic(err)
+	}
+	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 100, Y: 0}, img))
+	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 0, Y: 0}, img))
+
+	op := ebiten.RunGameOptions{}
+	if err := ebiten.RunGameWithOptions(&Game{}, &op); err != nil {
 		panic(err)
 	}
 }

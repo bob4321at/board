@@ -10,15 +10,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var Grid_X string = "10"
-var Grid_Y string = "10"
+var Grid_Size string = "10"
 
 var Brush_Color = utils.IColor{R: 255, G: 255, B: 255, A: 255}
 var Tile_Color_One = utils.IColor{R: 255, G: 0, B: 255, A: 255}
 var Tile_Color_Two = utils.IColor{R: 255, G: 0, B: 255, A: 255}
 
 func EditMenu(ctx *debugui.Context) {
-	ctx.Window("Edit", image.Rect(0, 0, 200, 500), func(layout debugui.ContainerLayout) {
+	ctx.Window("Edit", image.Rect(0, 0, 200, 1000), func(layout debugui.ContainerLayout) {
 		ctx.Text("Edit Grid:")
 
 		ctx.Text("\n " + "Tile Color One" + ":")
@@ -61,20 +60,14 @@ func EditMenu(ctx *debugui.Context) {
 			})
 		})
 
-		ctx.Text("\n\n\n\n Coloumns: ")
-		ctx.TextField(&Grid_X)
-		ctx.Text("Rows: ")
-		ctx.TextField(&Grid_Y)
+		ctx.Text("\n\n\n\n Size: ")
+		ctx.TextField(&Grid_Size)
 		ctx.Button("New Grid").On(func() {
-			x, err := strconv.Atoi(Grid_X)
+			x, err := strconv.Atoi(Grid_Size)
 			if err != nil {
 				panic(err)
 			}
-			y, err := strconv.Atoi(Grid_Y)
-			if err != nil {
-				panic(err)
-			}
-			grid.Temp_Grid = grid.NewGrid(x, y, Tile_Color_One.TurnToColorRGBA(), Tile_Color_Two.TurnToColorRGBA())
+			grid.Temp_Grid = grid.NewGrid(x, x, Tile_Color_One.TurnToColorRGBA(), Tile_Color_Two.TurnToColorRGBA())
 		})
 
 		ctx.Header("Color", true, func() {

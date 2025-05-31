@@ -84,4 +84,4 @@ func (grid *Grid) Update() {
 	}
 }
 
-var Temp_Grid = NewGrid(20, 20, color.RGBA{125, 125, 125, 255}, color.RGBA{255, 255, 255, 255})
+var Temp_Grid = NewGrid(8, 8, color.RGBA{0, 0, 0, 255}, color.RGBA{255, 0, 0, 255})

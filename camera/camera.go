@@ -19,7 +19,7 @@ type Camera struct {
 
 func NewCamera(Pos utils.Vec2) (camera Camera) {
 	camera.Pos = Pos
-	camera.Zoom = 1
+	camera.Zoom = 3
 	camera.Speed = 10
 
 	return camera
