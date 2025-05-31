@@ -3,7 +3,6 @@ package grid
 import (
 	"board/camera"
 	"board/utils"
-	"fmt"
 	"image/color"
 	"math"
 
@@ -64,13 +63,11 @@ func (grid *Grid) Draw(screen *ebiten.Image, cam camera.Camera) {
 
 func (grid *Grid) Update() {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButton0) {
-		world_mouse_x := float64(camera.Cam.Pos.X+960-(utils.Mouse_X)) / 32 * camera.Cam.Zoom
-		world_mouse_y := float64(camera.Cam.Pos.Y+540-(utils.Mouse_Y)) / 32 * camera.Cam.Zoom
+		world_mouse_x := float64(camera.Cam.Pos.X+960-(utils.Mouse_X)) / (32 * camera.Cam.Zoom)
+		world_mouse_y := float64(camera.Cam.Pos.Y+540-(utils.Mouse_Y)) / (32 * camera.Cam.Zoom)
 
 		world_mouse_x += float64(len(grid.Tiles[0]) / 2)
 		world_mouse_y += float64(len(grid.Tiles) / 2)
-
-		fmt.Println(world_mouse_x)
 
 		if int(world_mouse_y) < len(grid.Tiles) && world_mouse_y > 0 {
 			if int(world_mouse_x) < len(grid.Tiles[0]) && world_mouse_x > 0 {

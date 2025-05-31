@@ -23,6 +23,9 @@ func (g *Game) Update() error {
 	mx, my := ebiten.CursorPosition()
 	utils.Mouse_X = float64(mx)
 	utils.Mouse_Y = float64(my)
+	sx, sy := ebiten.Wheel()
+	utils.Scroll_X = sx
+	utils.Scroll_Y = sy
 
 	grid.Temp_Grid.Update()
 

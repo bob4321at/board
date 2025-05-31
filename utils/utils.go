@@ -4,6 +4,8 @@ import "image/color"
 
 var Mouse_X float64
 var Mouse_Y float64
+var Scroll_X float64
+var Scroll_Y float64
 
 type IColor struct {
 	R, G, B, A int

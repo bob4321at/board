@@ -7,14 +7,19 @@ import (
 )
 
 type Camera struct {
-	Pos   utils.Vec2
-	Speed float64
-	Zoom  float64
+	Pos                     utils.Vec2
+	Speed                   float64
+	Zoom                    float64
+	Is_Middle_Clicking      bool
+	Zoom_Middle_Click_Start utils.Vec2
+	Zoom_Middle_Click       utils.Vec2
+	Started_Moving          utils.Vec2
+	Moving                  bool
 }
 
 func NewCamera(Pos utils.Vec2) (camera Camera) {
 	camera.Pos = Pos
-	camera.Zoom = 2
+	camera.Zoom = 1
 	camera.Speed = 10
 
 	return camera
@@ -32,6 +37,43 @@ func DrawWithCamera(screen *ebiten.Image, cam Camera, image_to_render *ebiten.Im
 }
 
 func (camera *Camera) Update() {
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) && !camera.Moving {
+		camera.Moving = true
+		camera.Started_Moving = utils.Vec2{X: utils.Mouse_X - camera.Pos.X, Y: utils.Mouse_Y - camera.Pos.Y}
+	}
+
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) && camera.Moving {
+		camera.Pos.X = -(camera.Started_Moving.X - utils.Mouse_X)
+		camera.Pos.Y = -(camera.Started_Moving.Y - utils.Mouse_Y)
+	}
+
+	if !ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) && camera.Moving {
+		camera.Moving = false
+	}
+
+	if !ebiten.IsMouseButtonPressed(ebiten.MouseButtonMiddle) && camera.Is_Middle_Clicking {
+		camera.Zoom_Middle_Click_Start = utils.Vec2{X: 0, Y: 0}
+		camera.Zoom_Middle_Click = utils.Vec2{X: 0, Y: 0}
+		camera.Is_Middle_Clicking = false
+	}
+
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonMiddle) && !camera.Is_Middle_Clicking {
+		camera.Is_Middle_Clicking = true
+		camera.Zoom_Middle_Click_Start = utils.Vec2{X: utils.Mouse_X, Y: utils.Mouse_Y}
+	}
+
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonMiddle) && camera.Is_Middle_Clicking {
+		camera.Zoom_Middle_Click = utils.Vec2{X: utils.Mouse_X, Y: utils.Mouse_Y}
+	}
+
+	camera.Zoom -= (camera.Zoom_Middle_Click.Y - camera.Zoom_Middle_Click_Start.Y) / 10000
+
+	camera.Zoom += utils.Scroll_Y / 50
+
+	if camera.Zoom < 0.1 {
+		camera.Zoom = 0.1
+	}
+
 	if ebiten.IsKeyPressed(ebiten.KeyH) {
 		camera.Pos.X += 1 * camera.Speed * camera.Zoom
 	} else if ebiten.IsKeyPressed(ebiten.KeyL) {
