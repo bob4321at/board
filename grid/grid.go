@@ -58,6 +58,7 @@ func (grid *Grid) GenCache() {
 
 func (grid *Grid) Draw(screen *ebiten.Image, cam camera.Camera) {
 	geom := utils.GeoM{}
+	geom.Scale(1, 1)
 	camera.DrawWithCamera(screen, cam, grid.Grid_Image, geom)
 }
 

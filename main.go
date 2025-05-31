@@ -6,7 +6,6 @@ import (
 	"board/pieces"
 	"board/ui"
 	"board/utils"
-	"fmt"
 	"image/color"
 	"strconv"
 
@@ -78,8 +77,6 @@ func (g *Game) Update() error {
 
 	camera.Cam.Update()
 
-	fmt.Println(g.InputCapturingState)
-
 	return nil
 }
 
@@ -105,12 +102,16 @@ func main() {
 	ebiten.SetWindowTitle("board")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
-	img, _, err := ebitenutil.NewImageFromFile("./art/checker_red.png")
+	img1, _, err := ebitenutil.NewImageFromFile("./art/checker_red.png")
 	if err != nil {
 		panic(err)
 	}
-	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 100, Y: 0}, img))
-	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 0, Y: 0}, img))
+	img2, _, err := ebitenutil.NewImageFromFile("./art/checker_blue.png")
+	if err != nil {
+		panic(err)
+	}
+	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 100, Y: 0}, img1))
+	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 0, Y: 0}, img2))
 
 	op := ebiten.RunGameOptions{}
 	if err := ebiten.RunGameWithOptions(&Game{}, &op); err != nil {

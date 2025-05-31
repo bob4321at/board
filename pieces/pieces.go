@@ -28,6 +28,7 @@ func NewPiece(Position utils.Vec2, Image *ebiten.Image) (piece Piece) {
 func (piece *Piece) Draw(screen *ebiten.Image, cam camera.Camera) {
 	geom := utils.GeoM{}
 	geom.Translate(piece.Position.X, piece.Position.Y)
+	geom.Scale(2, 2)
 	camera.DrawWithCamera(screen, cam, piece.Image, geom)
 }
 

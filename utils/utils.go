@@ -28,3 +28,8 @@ func (geom *GeoM) Translate(x, y float64) {
 	geom.X = x
 	geom.Y = y
 }
+
+func (geom *GeoM) Scale(w, h float64) {
+	geom.Width = w
+	geom.Height = h
+}
