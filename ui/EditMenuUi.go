@@ -18,6 +18,12 @@ var Tile_Color_Two = utils.IColor{R: 255, G: 0, B: 255, A: 255}
 
 func EditMenu(ctx *debugui.Context) {
 	ctx.Window("Edit", image.Rect(0, 0, 200, 1000), func(layout debugui.ContainerLayout) {
+		EditGridSubMenu(ctx)
+	})
+}
+
+func EditGridSubMenu(ctx *debugui.Context) {
+	ctx.Header("Grid", false, func() {
 		ctx.Text("Edit Grid:")
 
 		ctx.Text("\n " + "Tile Color One" + ":")
@@ -70,29 +76,27 @@ func EditMenu(ctx *debugui.Context) {
 			grid.Temp_Grid = grid.NewGrid(x, x, Tile_Color_One.TurnToColorRGBA(), Tile_Color_Two.TurnToColorRGBA())
 		})
 
-		ctx.Header("Color", true, func() {
-			ctx.Text("Brush Color" + ":")
-			ctx.Text("R:")
-			ctx.Slider(&Brush_Color.R, 0, 255, 1)
-			ctx.Text("G:")
-			ctx.Slider(&Brush_Color.G, 0, 255, 1)
-			ctx.Text("B:")
-			ctx.Slider(&Brush_Color.B, 0, 255, 1)
-			ctx.Text("A:")
-			ctx.Slider(&Brush_Color.A, 0, 255, 1)
+		ctx.Text("Brush Color" + ":")
+		ctx.Text("R:")
+		ctx.Slider(&Brush_Color.R, 0, 255, 1)
+		ctx.Text("G:")
+		ctx.Slider(&Brush_Color.G, 0, 255, 1)
+		ctx.Text("B:")
+		ctx.Slider(&Brush_Color.B, 0, 255, 1)
+		ctx.Text("A:")
+		ctx.Slider(&Brush_Color.A, 0, 255, 1)
 
-			grid.Brush_Color = Brush_Color
+		grid.Brush_Color = Brush_Color
 
-			ctx.GridCell(func(bounds image.Rectangle) {
-				ctx.DrawOnlyWidget(func(screen *ebiten.Image) {
-					img := ebiten.NewImage(100, 100)
-					img.Fill(Brush_Color.TurnToColorRGBA())
-					op := ebiten.DrawImageOptions{}
-					op.GeoM.Translate(float64(bounds.Min.X), float64(bounds.Min.Y))
-					screen.DrawImage(img, &op)
-				})
+		ctx.GridCell(func(bounds image.Rectangle) {
+			ctx.DrawOnlyWidget(func(screen *ebiten.Image) {
+				img := ebiten.NewImage(100, 100)
+				img.Fill(Brush_Color.TurnToColorRGBA())
+				op := ebiten.DrawImageOptions{}
+				op.GeoM.Translate(float64(bounds.Min.X), float64(bounds.Min.Y))
+				screen.DrawImage(img, &op)
 			})
-			ctx.Text("\n\n\n\n")
 		})
+		ctx.Text("\n\n\n\n")
 	})
 }

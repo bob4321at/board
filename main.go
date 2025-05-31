@@ -6,6 +6,7 @@ import (
 	"board/pieces"
 	"board/ui"
 	"board/utils"
+	"fmt"
 	"image/color"
 	"strconv"
 
@@ -15,7 +16,8 @@ import (
 )
 
 type Game struct {
-	debugui debugui.DebugUI
+	debugui             debugui.DebugUI
+	InputCapturingState debugui.InputCapturingState
 }
 
 var Is_Editing bool = true
@@ -29,21 +31,35 @@ func (g *Game) Update() error {
 	utils.Scroll_X = sx
 	utils.Scroll_Y = sy
 
-	for i := range pieces.Pieces {
-		piece := &pieces.Pieces[i]
-		piece.Update()
-	}
-
 	if Is_Editing {
-		grid.Temp_Grid.Update()
-
-		if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
+		temp_input_capture_state, err := g.debugui.Update(func(ctx *debugui.Context) error {
 			ui.EditMenu(ctx)
 			return nil
-		}); err != nil {
+		})
+		if err != nil {
 			panic(err)
 		}
+
+		g.InputCapturingState = temp_input_capture_state
+
+		if g.InputCapturingState == 0 {
+			pieces.Hovering = false
+
+			for i := range pieces.Pieces {
+				piece := &pieces.Pieces[i]
+				piece.Edit_Update()
+			}
+
+			if !pieces.Hovering {
+				grid.Temp_Grid.Update()
+			}
+		}
 	} else {
+		for i := range pieces.Pieces {
+			piece := &pieces.Pieces[i]
+			piece.Game_Update()
+		}
+
 		if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 			return nil
 		}); err != nil {
@@ -61,6 +77,8 @@ func (g *Game) Update() error {
 	}
 
 	camera.Cam.Update()
+
+	fmt.Println(g.InputCapturingState)
 
 	return nil
 }
