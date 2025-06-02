@@ -11,6 +11,8 @@ import (
 var Holding bool = false
 var Hovering bool = false
 
+var Selected_Piece *Piece
+
 type Piece struct {
 	Position               utils.Vec2
 	Started_Click_Position utils.Vec2
@@ -50,6 +52,9 @@ func (piece *Piece) Edit_Update() {
 			if ebiten.IsMouseButtonPressed(ebiten.MouseButton0) && !Holding {
 				Pieces = append(Pieces, NewPiece(utils.Vec2{X: piece.Position.X + (rand.Float64() * 64) - 32, Y: piece.Position.Y + (rand.Float64() * 64) - 32}, piece.Image))
 				Holding = true
+			}
+			if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) && !Holding {
+				Selected_Piece = piece
 			}
 		}
 	}

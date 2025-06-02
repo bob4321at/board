@@ -6,6 +6,7 @@ import (
 	"board/pieces"
 	"board/ui"
 	"board/utils"
+
 	"image/color"
 	"strconv"
 
@@ -101,17 +102,6 @@ func main() {
 	ebiten.SetWindowSize(1920, 1080)
 	ebiten.SetWindowTitle("board")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-
-	img1, _, err := ebitenutil.NewImageFromFile("./art/checker_red.png")
-	if err != nil {
-		panic(err)
-	}
-	img2, _, err := ebitenutil.NewImageFromFile("./art/checker_blue.png")
-	if err != nil {
-		panic(err)
-	}
-	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 100, Y: 0}, img1))
-	pieces.Pieces = append(pieces.Pieces, pieces.NewPiece(utils.Vec2{X: 0, Y: 0}, img2))
 
 	op := ebiten.RunGameOptions{}
 	if err := ebiten.RunGameWithOptions(&Game{}, &op); err != nil {
