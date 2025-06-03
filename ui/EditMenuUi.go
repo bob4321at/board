@@ -84,39 +84,40 @@ func EditMenu(ctx *debugui.Context) {
 				panic(err)
 			}
 			for _, file := range dir {
-				ctx.Button(file.Name()).On(func() {
-					text_data, err := os.ReadFile("./saves/" + file.Name())
-					if err != nil {
-						panic(err)
-					}
-
-					data := SaveData{}
-
-					if err := json.Unmarshal(text_data, &data); err != nil {
-						panic(err)
-					}
-
-					grid.Temp_Grid.Size = data.Grid.Size
-					grid.Temp_Grid.Tiles = data.Grid.Tiles
-
-					saved_piece_data := []pieces.Piece{}
-
-					for _, piece := range data.Pieces {
-						img := ebiten.NewImage(16, 16)
-
-						for x := range piece.Image {
-							for y := range piece.Image[x] {
-								img.Set(x, y, piece.Image[x][y])
-							}
+				filename := file.Name()
+				ctx.IDScope(fmt.Sprintf("%d", file.Name()), func() {
+					ctx.Button(filename).On(func() {
+						text_data, err := os.ReadFile("./saves/" + filename)
+						if err != nil {
+							panic(err)
 						}
 
-						saved_piece_data = append(saved_piece_data, pieces.Piece{Position: piece.Pos, Started_Click_Position: utils.Vec2{X: 0, Y: 0}, Clicked: 0, Image: img})
-					}
+						data := SaveData{}
 
-					fmt.Println(saved_piece_data)
+						if err := json.Unmarshal(text_data, &data); err != nil {
+							panic(err)
+						}
 
-					pieces.Pieces = saved_piece_data
-					grid.Temp_Grid.GenCache()
+						grid.Temp_Grid.Size = data.Grid.Size
+						grid.Temp_Grid.Tiles = data.Grid.Tiles
+
+						saved_piece_data := []pieces.Piece{}
+
+						for _, piece := range data.Pieces {
+							img := ebiten.NewImage(16, 16)
+
+							for x := range piece.Image {
+								for y := range piece.Image[x] {
+									img.Set(x, y, piece.Image[x][y])
+								}
+							}
+
+							saved_piece_data = append(saved_piece_data, pieces.Piece{Position: piece.Pos, Started_Click_Position: utils.Vec2{X: 0, Y: 0}, Clicked: 0, Image: img})
+						}
+
+						pieces.Pieces = saved_piece_data
+						grid.Temp_Grid.GenCache()
+					})
 				})
 			}
 		})
