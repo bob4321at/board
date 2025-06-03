@@ -5,8 +5,11 @@ import (
 	"board/grid"
 	"board/pieces"
 	"board/utils"
+	"encoding/json"
+	"fmt"
 	"image"
 	"image/color"
+	"os"
 	"strconv"
 
 	"github.com/ebitengine/debugui"
@@ -23,10 +26,100 @@ var Tile_Color_Two = utils.IColor{R: 255, G: 0, B: 255, A: 255}
 var Selected_Piece *pieces.Piece
 var Piece_Brush_Color = utils.IColor{R: 255, G: 0, B: 255, A: 255}
 
+var Save_Name string = ""
+
+type Saved_Pieces struct {
+	Pos   utils.Vec2
+	Image [][]color.RGBA
+}
+
+type SaveData struct {
+	Grid   grid.Grid
+	Pieces []Saved_Pieces
+}
+
 func EditMenu(ctx *debugui.Context) {
 	ctx.Window("Edit", image.Rect(0, 0, 200, 1000), func(layout debugui.ContainerLayout) {
 		EditGridSubMenu(ctx)
 		EditPieceSubMenu(ctx)
+
+		ctx.Header("Save", true, func() {
+			ctx.TextField(&Save_Name)
+			ctx.Button("Save").On(func() {
+				file, err := os.Create("./saves/" + Save_Name)
+				if err != nil {
+					panic(err)
+				}
+
+				saved_pieces_data := []Saved_Pieces{}
+
+				for _, piece := range pieces.Pieces {
+					colors := [][]color.RGBA{}
+
+					for x := range piece.Image.Bounds().Max.X {
+						colors = append(colors, []color.RGBA{})
+						for y := range piece.Image.Bounds().Max.Y {
+							colo := piece.Image.At(x, y)
+							r, g, b, a := colo.RGBA()
+							col := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
+							colors[x] = append(colors[x], col)
+						}
+					}
+
+					saved_pieces_data = append(saved_pieces_data, Saved_Pieces{piece.Position, colors})
+				}
+
+				data_to_send, err := json.Marshal(SaveData{grid.Temp_Grid, saved_pieces_data})
+				if err != nil {
+					panic(err)
+				}
+
+				file.Write(data_to_send)
+			})
+		})
+
+		ctx.Header("Load", false, func() {
+			dir, err := os.ReadDir("./saves")
+			if err != nil {
+				panic(err)
+			}
+			for _, file := range dir {
+				ctx.Button(file.Name()).On(func() {
+					text_data, err := os.ReadFile("./saves/" + file.Name())
+					if err != nil {
+						panic(err)
+					}
+
+					data := SaveData{}
+
+					if err := json.Unmarshal(text_data, &data); err != nil {
+						panic(err)
+					}
+
+					grid.Temp_Grid.Size = data.Grid.Size
+					grid.Temp_Grid.Tiles = data.Grid.Tiles
+
+					saved_piece_data := []pieces.Piece{}
+
+					for _, piece := range data.Pieces {
+						img := ebiten.NewImage(16, 16)
+
+						for x := range piece.Image {
+							for y := range piece.Image[x] {
+								img.Set(x, y, piece.Image[x][y])
+							}
+						}
+
+						saved_piece_data = append(saved_piece_data, pieces.Piece{Position: piece.Pos, Started_Click_Position: utils.Vec2{X: 0, Y: 0}, Clicked: 0, Image: img})
+					}
+
+					fmt.Println(saved_piece_data)
+
+					pieces.Pieces = saved_piece_data
+					grid.Temp_Grid.GenCache()
+				})
+			}
+		})
 	})
 }
 
