@@ -2,10 +2,12 @@ package main
 
 import (
 	"board/camera"
+	"board/comunication"
 	"board/grid"
 	"board/pieces"
 	"board/ui"
 	"board/utils"
+	"image"
 
 	"image/color"
 	"strconv"
@@ -30,6 +32,8 @@ func (g *Game) Update() error {
 	sx, sy := ebiten.Wheel()
 	utils.Scroll_X = sx
 	utils.Scroll_Y = sy
+
+	comunication.CheckChanges()
 
 	if Is_Editing {
 		temp_input_capture_state, err := g.debugui.Update(func(ctx *debugui.Context) error {
@@ -103,8 +107,17 @@ func main() {
 	ebiten.SetWindowTitle("board")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
-	op := ebiten.RunGameOptions{}
-	if err := ebiten.RunGameWithOptions(&Game{}, &op); err != nil {
+	_, icon_img, err := ebitenutil.NewImageFromFile("./art/icon.png")
+	if err != nil {
+		panic(err)
+	}
+	ebiten.SetWindowIcon([]image.Image{icon_img})
+
+	// op := ebiten.RunGameOptions{}
+	// if err := ebiten.RunGameWithOptions(&Game{}, &op); err != nil {
+	// panic(err)
+	// }
+	if err := ebiten.RunGame(&Game{}); err != nil {
 		panic(err)
 	}
 }

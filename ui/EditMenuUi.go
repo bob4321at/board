@@ -2,6 +2,7 @@ package ui
 
 import (
 	"board/camera"
+	"board/comunication"
 	"board/grid"
 	"board/pieces"
 	"board/utils"
@@ -9,6 +10,8 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"io"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -120,6 +123,33 @@ func EditMenu(ctx *debugui.Context) {
 					})
 				})
 			}
+		})
+		ctx.Header("Online", false, func() {
+			ctx.Text("Join Server:")
+			ctx.TextField(&comunication.Server_To_Join)
+			ctx.Button("Join or Start server").On(func() {
+				resp, err := http.Get("http://" + comunication.Server_To_Join + "/GameMadeYet")
+				if err != nil {
+					panic(err)
+				}
+
+				make_or_not, err := io.ReadAll(resp.Body)
+				if err != nil {
+					panic(err)
+				}
+
+				if make_or_not[1] != 109 {
+					comunication.In_Server = true
+					comunication.SendBoard()
+					comunication.SendPieces()
+					comunication.AddUser()
+				} else {
+					comunication.In_Server = true
+					comunication.GetBoard()
+					comunication.GetPieces()
+					comunication.AddUser()
+				}
+			})
 		})
 	})
 }

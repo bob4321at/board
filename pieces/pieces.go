@@ -18,6 +18,7 @@ type Piece struct {
 	Started_Click_Position utils.Vec2
 	Clicked                int
 	Image                  *ebiten.Image
+	Changed                bool
 }
 
 func NewPiece(Position utils.Vec2, Image *ebiten.Image) (piece Piece) {
@@ -35,6 +36,8 @@ func (piece *Piece) Draw(screen *ebiten.Image, cam camera.Camera) {
 }
 
 func (piece *Piece) Edit_Update() {
+	piece.Changed = false
+
 	Mouse_World_Pos := utils.Vec2{X: utils.Mouse_X, Y: utils.Mouse_Y}
 
 	Mouse_World_Pos.X -= 960
@@ -65,6 +68,8 @@ func (piece *Piece) Edit_Update() {
 }
 
 func (piece *Piece) Game_Update() {
+	piece.Changed = false
+
 	Mouse_World_Pos := utils.Vec2{X: utils.Mouse_X, Y: utils.Mouse_Y}
 
 	Mouse_World_Pos.X -= 960
@@ -88,7 +93,6 @@ func (piece *Piece) Game_Update() {
 
 	if piece.Clicked == 1 {
 		piece.Clicked = 2
-		// piece.Started_Click_Position = utils.Vec2{X: utils.Mouse_X - piece.Position.X, Y: utils.Mouse_Y - piece.Position.Y}
 	}
 
 	if piece.Clicked == 2 {
@@ -97,6 +101,9 @@ func (piece *Piece) Game_Update() {
 	}
 
 	if !ebiten.IsMouseButtonPressed(ebiten.MouseButton0) {
+		if piece.Clicked == 2 {
+			piece.Changed = true
+		}
 		piece.Clicked = 0
 		Holding = false
 	}
