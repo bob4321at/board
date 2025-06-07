@@ -171,6 +171,7 @@ func EditPieceSubMenu(ctx *debugui.Context) {
 						Selected_Piece = pieces.Selected_Piece
 
 						if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+							Selected_Piece.Changed = true
 							Selected_Piece.Image.Set(int((utils.Mouse_X-float64(bounds.Min.X))/16-8), int((utils.Mouse_Y-float64(bounds.Min.Y))/16-8), Piece_Brush_Color.TurnToColorRGBA())
 						}
 

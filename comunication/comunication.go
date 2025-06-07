@@ -56,6 +56,9 @@ var Server_To_Join string = "localhost:8080"
 
 var In_Server bool = false
 var ID uint8 = 0
+var Got_Changes bool = false
+
+var Pieces_To_Change = ListOfChangedPiece{}
 
 func CheckChanges() {
 	if In_Server {
@@ -65,14 +68,18 @@ func CheckChanges() {
 
 				colors := [][]color.RGBA{}
 
-				for x := range piece.Image.Bounds().Max.X {
-					colors = append(colors, []color.RGBA{})
-					for y := range piece.Image.Bounds().Max.Y {
-						colo := piece.Image.At(x, y)
-						r, g, b, a := colo.RGBA()
-						col := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
-						colors[x] = append(colors[x], col)
+				if piece.Image != nil {
+
+					for x := range piece.Image.Bounds().Max.X {
+						colors = append(colors, []color.RGBA{})
+						for y := range piece.Image.Bounds().Max.Y {
+							colo := piece.Image.At(x, y)
+							r, g, b, a := colo.RGBA()
+							col := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
+							colors[x] = append(colors[x], col)
+						}
 					}
+
 				}
 
 				temp_piece.Image = colors
@@ -109,6 +116,8 @@ func CheckChanges() {
 
 		json.Unmarshal(data_in_bytes, &temp_user)
 
+		Got_Changes = temp_user.Got_Changes
+
 		if !temp_user.Got_Changes {
 			resp, err := http.Get("http://" + Server_To_Join + "/GetPieceChanges")
 			if err != nil {
@@ -123,19 +132,24 @@ func CheckChanges() {
 
 			json.Unmarshal(json_data_bytes, &json_data)
 
-			for _, piece := range json_data.Pieces {
-				pieces.Pieces[piece.ID] = pieces.Piece{}
+			Pieces_To_Change = json_data
 
-				img := ebiten.NewImage(16, 16)
+			// for i := range json_data.Pieces {
+			// 	piece := json_data.Pieces[i]
 
-				for x := range piece.Image {
-					for y := range piece.Image[x] {
-						img.Set(x, y, piece.Image[x][y])
-					}
-				}
+			// 	op := ebiten.NewImageOptions{}
+			// 	op.Unmanaged = true
+			// 	img := ebiten.NewImageWithOptions(image.Rect(0, 0, 16, 16), &op)
 
-				pieces.Pieces[piece.ID] = pieces.Piece{Position: utils.Vec2{X: piece.Position[0], Y: piece.Position[1]}, Started_Click_Position: utils.Vec2{X: 0, Y: 0}, Clicked: 0, Image: img}
-			}
+			// 	for x := range piece.Image {
+			// 		for y := range piece.Image[x] {
+			// 			img.Set(x, y, piece.Image[x][y])
+			// 		}
+			// 	}
+
+			// 	pieces.Pieces[piece.ID] = pieces.Piece{Position: utils.Vec2{X: piece.Position[0], Y: piece.Position[1]}, Started_Click_Position: utils.Vec2{X: 0, Y: 0}, Clicked: 0, Image: ebiten.NewImageFromImage(img)}
+			// 	img.Deallocate()
+			// }
 		}
 	}
 }

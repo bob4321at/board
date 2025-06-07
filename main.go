@@ -33,7 +33,22 @@ func (g *Game) Update() error {
 	utils.Scroll_X = sx
 	utils.Scroll_Y = sy
 
-	comunication.CheckChanges()
+	for i := range comunication.Pieces_To_Change.Pieces {
+		piece := comunication.Pieces_To_Change.Pieces[i]
+
+		op := ebiten.NewImageOptions{}
+		op.Unmanaged = true
+		img := ebiten.NewImageWithOptions(image.Rect(0, 0, 16, 16), &op)
+
+		for x := range piece.Image {
+			for y := range piece.Image[x] {
+				img.Set(x, y, piece.Image[x][y])
+			}
+		}
+
+		pieces.Pieces[piece.ID] = pieces.Piece{Position: utils.Vec2{X: piece.Position[0], Y: piece.Position[1]}, Started_Click_Position: pieces.Pieces[piece.ID].Started_Click_Position, Clicked: pieces.Pieces[piece.ID].Clicked, Image: ebiten.NewImageFromImage(img)}
+		img.Deallocate()
+	}
 
 	if Is_Editing {
 		temp_input_capture_state, err := g.debugui.Update(func(ctx *debugui.Context) error {
@@ -112,6 +127,12 @@ func main() {
 		panic(err)
 	}
 	ebiten.SetWindowIcon([]image.Image{icon_img})
+
+	go func() {
+		for true {
+			comunication.CheckChanges()
+		}
+	}()
 
 	// op := ebiten.RunGameOptions{}
 	// if err := ebiten.RunGameWithOptions(&Game{}, &op); err != nil {

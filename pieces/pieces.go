@@ -36,8 +36,6 @@ func (piece *Piece) Draw(screen *ebiten.Image, cam camera.Camera) {
 }
 
 func (piece *Piece) Edit_Update() {
-	piece.Changed = false
-
 	Mouse_World_Pos := utils.Vec2{X: utils.Mouse_X, Y: utils.Mouse_Y}
 
 	Mouse_World_Pos.X -= 960
@@ -68,8 +66,6 @@ func (piece *Piece) Edit_Update() {
 }
 
 func (piece *Piece) Game_Update() {
-	piece.Changed = false
-
 	Mouse_World_Pos := utils.Vec2{X: utils.Mouse_X, Y: utils.Mouse_Y}
 
 	Mouse_World_Pos.X -= 960
