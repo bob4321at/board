@@ -35,3 +35,7 @@ func (geom *GeoM) Scale(w, h float64) {
 	geom.Width = w
 	geom.Height = h
 }
+
+func RemoveArrayElement[T any](index_to_remove int, slice *[]T) {
+	*slice = append((*slice)[:index_to_remove], (*slice)[index_to_remove+1:]...)
+}

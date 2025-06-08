@@ -6,6 +6,7 @@ import (
 	"board/utils"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"image/color"
 	"io"
 	"net/http"
@@ -39,7 +40,7 @@ type ChangeNetworkedPieceStruct struct {
 
 type ChangedPiece struct {
 	ID       uint8
-	Position []float64
+	Position [2]float64
 	Image    [][]color.RGBA
 }
 
@@ -59,47 +60,24 @@ var ID uint8 = 0
 var Got_Changes bool = false
 
 var Pieces_To_Change = ListOfChangedPiece{}
+var Changes_Made_To_Pieces = ListOfChangedPiece{}
 
 func CheckChanges() {
 	if In_Server {
-		for ID, piece := range pieces.Pieces {
-			if piece.Changed == true {
-				temp_piece := NetworkedPiece{}
+		for _, piece := range Changes_Made_To_Pieces.Pieces {
+			temp_piece_json, err := json.Marshal(piece)
+			if err != nil {
+				panic(err)
+			}
 
-				colors := [][]color.RGBA{}
+			fmt.Println(string(temp_piece_json))
 
-				if piece.Image != nil {
-
-					for x := range piece.Image.Bounds().Max.X {
-						colors = append(colors, []color.RGBA{})
-						for y := range piece.Image.Bounds().Max.Y {
-							colo := piece.Image.At(x, y)
-							r, g, b, a := colo.RGBA()
-							col := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
-							colors[x] = append(colors[x], col)
-						}
-					}
-
-				}
-
-				temp_piece.Image = colors
-				temp_piece.Position = []float64{piece.Position.X, piece.Position.Y}
-
-				temp_piece_change := ChangeNetworkedPieceStruct{
-					uint8(ID),
-					temp_piece,
-				}
-
-				temp_piece_json, err := json.Marshal(temp_piece_change)
-				if err != nil {
-					panic(err)
-				}
-
-				if _, err := http.Post("http://"+Server_To_Join+"/ChangePiece", "application/json", bytes.NewBuffer(temp_piece_json)); err != nil {
-					panic(err)
-				}
+			if _, err := http.Post("http://"+Server_To_Join+"/ChangePiece", "application/json", bytes.NewBuffer(temp_piece_json)); err != nil {
+				panic(err)
 			}
 		}
+
+		Changes_Made_To_Pieces.Pieces = nil
 
 		data_in_bytes, err := json.Marshal(User{ID, false})
 		if err != nil {
@@ -133,23 +111,6 @@ func CheckChanges() {
 			json.Unmarshal(json_data_bytes, &json_data)
 
 			Pieces_To_Change = json_data
-
-			// for i := range json_data.Pieces {
-			// 	piece := json_data.Pieces[i]
-
-			// 	op := ebiten.NewImageOptions{}
-			// 	op.Unmanaged = true
-			// 	img := ebiten.NewImageWithOptions(image.Rect(0, 0, 16, 16), &op)
-
-			// 	for x := range piece.Image {
-			// 		for y := range piece.Image[x] {
-			// 			img.Set(x, y, piece.Image[x][y])
-			// 		}
-			// 	}
-
-			// 	pieces.Pieces[piece.ID] = pieces.Piece{Position: utils.Vec2{X: piece.Position[0], Y: piece.Position[1]}, Started_Click_Position: utils.Vec2{X: 0, Y: 0}, Clicked: 0, Image: ebiten.NewImageFromImage(img)}
-			// 	img.Deallocate()
-			// }
 		}
 	}
 }

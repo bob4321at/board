@@ -33,12 +33,38 @@ func (g *Game) Update() error {
 	utils.Scroll_X = sx
 	utils.Scroll_Y = sy
 
+	for i, piece := range pieces.Pieces {
+		if piece.Changed {
+			changed_piece := comunication.ChangedPiece{}
+			changed_piece.ID = uint8(i)
+
+			colors := [][]color.RGBA{}
+
+			if piece.Image != nil {
+				for x := range piece.Image.Bounds().Max.X {
+					colors = append(colors, []color.RGBA{})
+					for y := range piece.Image.Bounds().Max.Y {
+						colo := piece.Image.At(x, y)
+						r, g, b, a := colo.RGBA()
+						col := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
+						colors[x] = append(colors[x], col)
+					}
+				}
+			}
+
+			changed_piece.Image = colors
+			changed_piece.Position = [2]float64{piece.Position.X, piece.Position.Y}
+			comunication.Changes_Made_To_Pieces.Pieces = append(comunication.Changes_Made_To_Pieces.Pieces, changed_piece)
+
+			piece.Changed = false
+		}
+	}
+
 	for i := range comunication.Pieces_To_Change.Pieces {
 		piece := comunication.Pieces_To_Change.Pieces[i]
-
 		op := ebiten.NewImageOptions{}
 		op.Unmanaged = true
-		img := ebiten.NewImageWithOptions(image.Rect(0, 0, 16, 16), &op)
+		img := ebiten.NewImage(16, 16)
 
 		for x := range piece.Image {
 			for y := range piece.Image[x] {
@@ -46,8 +72,7 @@ func (g *Game) Update() error {
 			}
 		}
 
-		pieces.Pieces[piece.ID] = pieces.Piece{Position: utils.Vec2{X: piece.Position[0], Y: piece.Position[1]}, Started_Click_Position: pieces.Pieces[piece.ID].Started_Click_Position, Clicked: pieces.Pieces[piece.ID].Clicked, Image: ebiten.NewImageFromImage(img)}
-		img.Deallocate()
+		pieces.Pieces[piece.ID] = pieces.Piece{Position: utils.Vec2{X: piece.Position[0], Y: piece.Position[1]}, Started_Click_Position: pieces.Pieces[piece.ID].Started_Click_Position, Clicked: pieces.Pieces[piece.ID].Clicked, Image: img}
 	}
 
 	if Is_Editing {
